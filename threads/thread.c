@@ -347,7 +347,6 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
-	struct thread* test;
   struct thread* current = thread_current();
 	//if no donation, normal chnage
 	if(current->priority == current->orig_priority){
@@ -360,7 +359,7 @@ thread_set_priority (int new_priority)
 
 	//if current thread priority decreased, yield
 	if (!list_empty(&ready_list)){
-		test = list_entry(list_begin(&ready_list), struct thread, elem);
+		struct thread* test = list_entry(list_begin(&ready_list), struct thread, elem);
 		if (test != NULL && test->priority > new_priority){
 			thread_yield();
 		}

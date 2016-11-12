@@ -33,6 +33,7 @@
 #include "threads/thread.h"
 
 bool lock_compare(const struct list_elem* e1, const struct list_elem* e2, void* aux UNUSED);
+bool cond_compare(const struct list_elem* e1, const struct list_elem* e2, void* aux UNUSED);
 
 /* Initializes semaphore SEMA to VALUE.  A semaphore is a
    nonnegative integer along with two atomic operators for
@@ -362,7 +363,9 @@ cond_wait (struct condition *cond, struct lock *lock)
   ASSERT (lock_held_by_current_thread (lock));
   
   sema_init (&waiter.semaphore, 0);
-  list_push_back (&cond->waiters, &waiter.elem);
+  //list_push_back (&cond->waiters, &waiter.elem);
+	waiter.semaphore.priority = thread_current()->priority;
+	list_insert_ordered(&cond->waiters, &(waiter.elem), cond_compare, NULL);
   lock_release (lock);
   sema_down (&waiter.semaphore);
   lock_acquire (lock);
@@ -409,4 +412,11 @@ bool lock_compare(const struct list_elem* e1, const struct list_elem* e2, void* 
 	const struct lock* b = list_entry(e2, struct lock, lock_elem);
 	ASSERT(a != NULL && b != NULL);
 	return a->priority > b->priority;
+}
+
+bool cond_compare(const struct list_elem* e1, const struct list_elem* e2, void* aux UNUSED){
+	const struct semaphore_elem* a = list_entry(e1, struct semaphore_elem, elem);
+	const struct semaphore_elem* b = list_entry(e2, struct semaphore_elem, elem);
+	ASSERT(a != NULL && b != NULL);
+	return a->semaphore.priority > b->semaphore.priority;
 }
