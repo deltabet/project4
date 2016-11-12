@@ -103,6 +103,11 @@ struct thread
 
 		struct list_elem waiting_elem;
     int64_t ticks;
+
+		int orig_priority;
+
+		struct lock* wait_lock;
+		struct list lock_list;
   };
 
 /* If false (default), use round-robin scheduler.
@@ -142,5 +147,7 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 bool priority_compare(const struct list_elem* e1, const struct list_elem* e2, void* aux UNUSED);
+
+void priority_change(struct thread* t, int priority);
 
 #endif /* threads/thread.h */
